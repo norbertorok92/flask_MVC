@@ -1,0 +1,32 @@
+{% extends "_shared/_layout.html" %}
+{% block content %} 
+
+	<h1>{{title}} Page</h1>
+	<table class="table table-hover">
+		<thead>
+			<tr>
+				<th scope="col">#ID</th>
+				<th scope="col">Username</th>
+				<th scope="col">Email</th>
+				<th scope="col">Promote</th>
+				<th scope="col">Delete</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for user in users %}
+			<tr>
+				<td scope="row">{{ user.id }}</td>
+				<td>{{ user.username }}</td>
+				<td>{{ user.email }}</td>
+				<td>
+						<a class="nav-item nav-link btn btn-success btn-sm" href="{{ url_for('posts.new_post') }}">Promote to Member</a>
+				</td>
+				<td>
+						<a class="nav-item nav-link btn btn-danger btn-sm" href="{{ url_for('posts.new_post') }}">Delete</a>
+				</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+
+{% endblock content %}
