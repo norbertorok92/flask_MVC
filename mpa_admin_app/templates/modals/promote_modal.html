@@ -1,0 +1,24 @@
+<!-- Promote MODAL -->
+<div class="modal fade" id="promoteModal-{{user.id}}" tabindex="-1" role="dialog" aria-labelledby="promoteModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="promoteModalLabel">Promote user</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>
+          Are you sure you want to promote <b>{{ user.username }}</b> user to <b>{{ 'member' if user.user_role == 'visitor' else 'admin' }}</b>?
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+        <form action="{{ url_for('users.promote_user', username=user.username) }}" method="POST">
+          <input class="btn btn-success" type="submit" value="Promote">
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

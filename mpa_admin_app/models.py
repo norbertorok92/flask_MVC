@@ -15,12 +15,10 @@ class User(db.Model, UserMixin):
 	email = db.Column(db.String(120), unique=True, nullable=False)
 	password = db.Column(db.String(60), nullable=False)
 	image_file = db.Column(db.String(20), nullable=False, default='def_profile_pic.jpg')
-	resume = db.Column(db.String(20))
-	description = db.Column(db.String(1000))
-	position = db.Column(db.String(250))
-	user_role = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=False, default=1)
-	posts = db.relationship('Post', backref='author', lazy=True)
-	events = db.relationship('Event', backref='author', lazy=True)
+	user_role = db.Column(db.String, db.ForeignKey('role.id'), nullable=False, default='visitor')
+	posts = db.relationship('Post', backref='author', uselist=True, cascade="all, delete-orphan")
+	comments = db.relationship('Comment', backref='author', uselist=True, cascade="all, delete-orphan")
+	events = db.relationship('Event', backref='author', uselist=True, cascade="all, delete-orphan")
 
 
 	def get_reset_token(self, expires_sec=1800):
@@ -38,7 +36,7 @@ class User(db.Model, UserMixin):
 		return User.query.get(user_id)
 
 	def __repr__(self):
-		return f"User('{self.username}', '{self.email}', '{self.image_file}')"
+		return f"User('{self.username}', '{self.email}', '{self.user_role}')"
 
 
 class Post(db.Model):
@@ -49,9 +47,22 @@ class Post(db.Model):
 	content = db.Column(db.Text, nullable=False)
 	code_snippet = db.Column(db.Text)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+	comments = db.relationship('Comment', backref='postId', uselist=True, cascade="all, delete-orphan")
 
 	def __repr__(self):
-		return f"Post('{self.title}', '{self.date_posted}')"
+		return f"Post('{self.title}', '{self.date_posted}', '{self.comments}')"
+
+
+class Comment(db.Model):
+	__tablename__ = 'comment'
+	id = db.Column(db.Integer, primary_key=True)
+	date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+	content = db.Column(db.Text, nullable=False)
+	user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+	post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+
+	def __repr__(self):
+		return f"Comment('{self.content}', '{self.date_posted}', '{self.post_id}')"
 
 
 class Event(db.Model):
@@ -71,8 +82,7 @@ class Role(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	title = db.Column(db.String(100), nullable=False)
 	description = db.Column(db.String(1000), nullable=False)
-	permissions = db.Column(db.String(100), nullable=False)
-	members = db.relationship('User', backref='role', uselist=True)
+	members = db.relationship('User', backref='role', uselist=True, cascade="all, delete-orphan")
 
 	def __repr__(self):
-		return f"Role('{self.id}', '{self.title}', '{self.permissions}', '{self.members}'"
+		return f"Role('{self.id}', '{self.title}', '{self.members}'"

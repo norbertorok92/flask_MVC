@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, jsonify
-from mpa_admin_app.models import User, Post, Event
+from mpa_admin_app.models import User, Post, Event, Role
 from mpa_admin_app import db, bcrypt
 from mpa_admin_app.users.utils import save_picture
 
@@ -22,7 +22,7 @@ def get_all_users():
 		
 		output.append(user_data)
 
-	return jsonify({'users': output})
+	return jsonify({'users': output, 'success' : True})
 
 # GET ONE SPECIFIC USER
 @api.route("/api/users/<string:username>", methods=['GET'])
@@ -34,7 +34,7 @@ def get_one_user(username):
 	events_list = []
 
 	if not user:
-		return jsonify({'message': 'No user found'})
+		return jsonify({'message': 'No user found', 'success' : False})
 
 	user_data = {}
 	user_data['username'] = user.username
@@ -68,7 +68,7 @@ def get_one_user(username):
 	user_data['posts'] = posts_list
 	user_data['events'] = events_list
 
-	return jsonify({'user': user_data})
+	return jsonify({'user': user_data, 'success' : True})
 
 # CREATE A USER
 @api.route("/api/users", methods=['POST'])
@@ -82,7 +82,7 @@ def create_user():
 	db.session.add(new_user)
 	db.session.commit()
 
-	return jsonify({'message' : 'New user created!'})
+	return jsonify({'message' : 'New user created!', 'success' : True})
 
 # UPDATE A USER
 @api.route("/api/users/<string:username>", methods=['PUT'])
@@ -91,14 +91,42 @@ def update_user(username):
 	user = User.query.filter_by(username=username).first()
 
 	if not user:
-		return jsonify({'message': 'No user found'})
+		return jsonify({'message': 'No user found', 'success' : False})
 
 	user.username = data['username']
 	user.email = data['email']
 
 	db.session.commit()
 
-	return jsonify({'message' : 'The user has been updated!'})
+	return jsonify({'message' : 'The user has been updated!', 'success' : True})
+
+# PROMOTE USER
+@api.route("/api/users/<string:username>/promote/<string:role>", methods=['PUT'])
+def promote_user(username, role):
+	user = User.query.filter_by(username=username).first()
+	role = Role.query.filter_by(title=role).first()
+
+	if not user:
+		return jsonify({'message': 'No user found', 'success' : False})
+
+	if not role:
+		return jsonify(
+			{
+				'message': 'No role found',
+				'success' : False
+			}
+		)
+
+	user.user_role = role.title
+	db.session.commit()
+
+	return jsonify(
+		{
+			'message' : 'The user has been promoted!',
+			'success' : True
+		}
+	)
+
 
 # DELETE A USER
 @api.route("/api/users/<string:username>", methods=['DELETE'])
@@ -106,12 +134,12 @@ def delete_user(username):
 	user = User.query.filter_by(username=username).first()
 
 	if not user:
-		return jsonify({'message': 'No user found'})
+		return jsonify({'message': 'No user found', 'success' : False})
 
 	db.session.delete(user)
 	db.session.commit()
 
-	return jsonify({'message' : 'The user has been deleted!'})
+	return jsonify({'message' : 'The user has been deleted!', 'success' : True})
 
 # # POST API
 # # ===============================================================

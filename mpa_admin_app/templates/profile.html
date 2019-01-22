@@ -3,60 +3,43 @@
 
 	<div class="content-section">
 		<div class="media">
-			<img class="rounded-circle account-img" src="{{ image_file }}">
+			<img class="rounded-circle account-img" src="{{ url_for('static', filename='profile_pics/' + user.image_file) }}"">
 			<div class="media-body">
-				<h2 class="account-heading">{{ current_user.username }}</h2>
-				<p class="text-secondary">{{ current_user.email }}</p>
+				<h2 class="account-heading">{{ user.username }}</h2>
+				<p class="text-secondary">{{ user.email }}</p>
+
+			</div>
+			{% if user.username == current_user.username %}
+				<span style="float:right;">
+					<a class="btn btn-info btn-sm mt-1 mb-1" href="#editUser" data-toggle="collapse"><span class="fas fa-pencil-alt"></span></a>
+				</span>	
+			{% endif %}
+		</div>
+
+		{% include 'edit_user.html' %}
+
+	</div>
+	<div>
+		<ul class="nav nav-tabs" id="myTab" role="tablist">
+			<li class="nav-item">
+				<a class="nav-link active" id="posts-tab" data-toggle="tab" href="#posts" role="tab" aria-controls="posts" aria-selected="true">Posts</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" id="events-tab" data-toggle="tab" href="#events" role="tab" aria-controls="events" aria-selected="false">Events</a>
+			</li>
+		</ul>
+		<div class="tab-content" id="myTabContent">
+			<div class="tab-pane fade show active" id="posts" role="tabpanel" aria-labelledby="posts-tab">
+				{% for post in posts %}
+					{% include 'post.html' %}
+				{% endfor %}
+			</div>
+			<div class="tab-pane fade" id="events" role="tabpanel" aria-labelledby="events-tab">
+				{% for event in events %}
+					{% include 'event.html' %}
+				{% endfor %}
 			</div>
 		</div>
-		<form method="POST" action="" enctype="multipart/form-data">
-			<!-- we need to pass this hiddent_tag method because what this does, it adds a CSRF Token (Cross-Site Request Forgery Token) -->
-			{{  form.hidden_tag() }}
-			<fieldset class="form-group">
-				<legend class="border-bottom mb-4">Profile Details</legend>
-
-				<div class="form-group">
-					{{ form.username.label(class="form-control-label") }}
-					{% if form.username.errors %}
-						{{ form.username(class="form-control form-control-lg is-invalid") }}
-						<div class="invalid-feedback">
-							{% for error in form.username.errors %}
-								<span>{{ error }}</span>
-							{% endfor %}
-						</div>
-					{% else %}
-						{{ form.username(class="form-control form-control-lg") }}
-					{% endif %}
-				</div>
-
-				<div class="form-group">
-					{{ form.email.label(class="form-control-label") }}
-					{% if form.email.errors %}
-						{{ form.email(class="form-control form-control-lg is-invalid") }}
-						<div class="invalid-feedback">
-							{% for error in form.email.errors %}
-								<span>{{ error }}</span>
-							{% endfor %}
-						</div>
-					{% else %}
-						{{ form.email(class="form-control form-control-lg") }}
-					{% endif %}
-				</div>
-
-				<div class="form-group">
-						{{ form.picture.label() }}
-						{{ form.picture(class="form-control-file") }}
-						{% if form.picture.errors %}
-							{% for error in form.picture.errors %}
-								<span class="text-danger">{{ error }}</span></br>
-							{% endfor %}
-						{% endif %}
-				</div>
-			</fieldset>
-			<div class="form-group">
-				{{ form.submit(class="btn btn-outline-info") }}
-			</div>
-		</form>
 	</div>
 
 {% endblock content %}

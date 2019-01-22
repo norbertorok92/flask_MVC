@@ -2,22 +2,11 @@
 {% block content %} 
 
 <h1>{{title}} Page</h1>
+	
 	{% for post in posts.items %}
-	<article class="media content-section">
-		<img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/' + post.author.image_file) }}">
-		<div class="media-body">
-			<div class="article-metadata">
-				<a class="mr-2" href="{{ url_for('users.user_post', username=post.author.username) }}">{{ post.author.username }}</a>
-				<small class="text-muted">Posted on: {{ post.date_posted.strftime('%Y-%m-%d') }}</small>
-			</div>
-			<h2><a class="article-title" href="{{ url_for('posts.post', post_id=post.id) }}">{{ post.title }}</a></h2>
-			<p class="prettyprint">{{ post.content }}</p>
-			{% if post.code_snippet %}
-			  <pre class="prettyprint">{{ post.code_snippet }}</pre>
-			{% endif %}
-		</div>
-	</article>
+		{% include 'post.html' %}
 	{% endfor %}
+
 	{% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
 		{% if page_num %}
 			{% if posts.page == page_num %}
@@ -33,6 +22,7 @@
 {% endblock content %}
 
 {% block sidecontent %}
+
 {% if events %}
 <div class="content-section">
 	<h3>Events</h3>
@@ -52,7 +42,7 @@
 		{% for user in users %}
 			<li class="list-group-item list-group-item-light">
 				<img class="rounded-circle members-list-img" src="{{ url_for('static', filename='profile_pics/' + user.image_file) }}">
-				<a class="mr-2" href="{{ url_for('users.user_post', username=user.username) }}">{{ user.username }}</a>
+				<a class="mr-2" href="{{ url_for('users.profile', id=user.id) }}">{{ user.username }}</a>
 			</li>
 		{% endfor %}
 	</ul>
