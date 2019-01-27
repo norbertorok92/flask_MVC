@@ -5,8 +5,15 @@
 		<div class="media">
 			<img class="rounded-circle account-img" src="{{ url_for('static', filename='profile_pics/' + user.image_file) }}"">
 			<div class="media-body">
-				<h2 class="account-heading">{{ user.username }}</h2>
-				<p class="text-secondary">{{ user.email }}</p>
+				<h2 class="account-heading">
+					{{ user.username }}
+				</h2>
+				<p class="text-secondary">
+					<b>Email:</b> {{ user.email }}
+				</p>
+				<p class="text-secondary">
+					<b>Role:</b> {{ user.user_role }}
+				</p>
 
 			</div>
 			{% if user.username == current_user.username %}
@@ -19,6 +26,14 @@
 		{% include 'edit_user.html' %}
 
 	</div>
+
+	{% if current_user.is_authenticated %}
+		<div class="d-flex flex-row-reverse">
+			<a style="float: right;" class="btn btn-success btn-sm" href="{{ url_for('events.new_event') }}">+ Add Event</a>
+			<a style="float: right;" class="btn btn-success btn-sm mr-3" href="{{ url_for('posts.new_post') }}">+ Add Post</a>
+		</div>
+	{% endif %}
+	
 	<div>
 		<ul class="nav nav-tabs" id="myTab" role="tablist">
 			<li class="nav-item">

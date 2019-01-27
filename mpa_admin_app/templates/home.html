@@ -2,10 +2,34 @@
 {% block content %} 
 
 <h1>{{title}} Page</h1>
-	
-	{% for post in posts.items %}
-		{% include 'post.html' %}
-	{% endfor %}
+	{% if current_user.is_authenticated %}
+		<div class="d-flex flex-row-reverse">
+			<a style="float: right;" class="btn btn-success btn-sm" href="{{ url_for('events.new_event') }}">+ Add Event</a>
+			<a style="float: right;" class="btn btn-success btn-sm mr-3" href="{{ url_for('posts.new_post') }}">+ Add Post</a>
+		</div>
+	{% endif %}
+<div>
+	<ul class="nav nav-tabs" id="myTab" role="tablist">
+		<li class="nav-item">
+			<a class="nav-link active" id="posts-tab" data-toggle="tab" href="#posts" role="tab" aria-controls="posts" aria-selected="true">Posts</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" id="events-tab" data-toggle="tab" href="#events" role="tab" aria-controls="events" aria-selected="false">Events</a>
+		</li>
+	</ul>
+	<div class="tab-content" id="myTabContent">
+		<div class="tab-pane fade show active" id="posts" role="tabpanel" aria-labelledby="posts-tab">
+			{% for post in posts.items %}
+				{% include 'post.html' %}
+			{% endfor %}
+		</div>
+		<div class="tab-pane fade" id="events" role="tabpanel" aria-labelledby="events-tab">
+			{% for event in events %}
+				{% include 'event.html' %}
+			{% endfor %}
+		</div>
+	</div>
+</div>
 
 	{% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
 		{% if page_num %}
@@ -20,31 +44,3 @@
 	{% endfor %}
 
 {% endblock content %}
-
-{% block sidecontent %}
-
-{% if events %}
-<div class="content-section">
-	<h3>Events</h3>
-	<ul class="list-group">
-		{% for event in events %}
-			<li class="list-group-item list-group-item-light">
-				<a class="mr-2" href="{{ url_for('events.event', event_id=event.id) }}">{{ event.title }}</a>
-			</li>
-		{% endfor %}
-	</ul>
-</div>
-{% endif %}
-
-<div class="content-section">
-	<h3>Members List</h3>
-	<ul class="list-group">
-		{% for user in users %}
-			<li class="list-group-item list-group-item-light">
-				<img class="rounded-circle members-list-img" src="{{ url_for('static', filename='profile_pics/' + user.image_file) }}">
-				<a class="mr-2" href="{{ url_for('users.profile', id=user.id) }}">{{ user.username }}</a>
-			</li>
-		{% endfor %}
-	</ul>
-</div>
-{% endblock %}

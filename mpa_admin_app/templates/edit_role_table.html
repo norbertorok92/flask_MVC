@@ -2,11 +2,11 @@
 	<table class="table table-hover">
 		<thead>
 			<tr>
-				<th scope="col">#ID</th>
-				<th scope="col"></th>
-				<th scope="col">Username</th>
-				<th scope="col">Edit Role</th>
-				<th scope="col">Delete</th>
+				<th scope="col" style="width: 10%">#ID</th>
+				<th scope="col" style="width: 10%"></th>
+				<th scope="col" style="width: 20%">Username</th>
+				<th scope="col" style="width: 35%">Edit Role</th>
+				<th scope="col" style="width: 25%">Delete</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -19,19 +19,19 @@
 				<td>{{ user.username }}</td>
 				{% if user.user_role == 'admin' %}
 					<td>
-						<button type="button" class="nav-item nav-link btn btn-warning btn-sm" data-toggle="modal" data-target="#demoteModal-{{user.id}}">Demote to Member</button>
+						<button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#demoteModal-{{user.id}}">Demote to Member</button>
 					</td>
 					<td>
 						<p>You cannot delete Admins</p>
 					</td>
 				{% elif user.user_role == 'member' %}
 					<td>
-						<button type="button" class="nav-item nav-link btn btn-success btn-sm" data-toggle="modal" data-target="#promoteModal-{{user.id}}">Promote to Admin</button>
-						<button type="button" class="nav-item nav-link btn btn-warning btn-sm mt-1" data-toggle="modal" data-target="#demoteModal-{{user.id}}">Demote to Visitor</button>
+						<button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#promoteModal-{{user.id}}">Promote to Admin</button>
+						<button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#demoteModal-{{user.id}}">Demote to Visitor</button>
 					</td>
 					{% if user.id != current_user.id %}
 					<td>
-						<button type="button" class="nav-item nav-link btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteUserModal-{{user.id}}">Delete</button>
+						<button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteUserModal-{{user.id}}">Delete</button>
 					</td>
 					{% else %}
 						<td>
@@ -40,11 +40,11 @@
 					{% endif %}
 				{% elif user.user_role == 'visitor' %}
 					<td>
-						<button type="button" class="nav-item nav-link btn btn-success btn-sm" data-toggle="modal" data-target="#promoteModal-{{user.id}}">Promote to Member</button>
+						<button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#promoteModal-{{user.id}}">Promote to Member</button>
 					</td>
 					{% if user.id != current_user.id %}
 					<td>
-						<button type="button" class="nav-item nav-link btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteUserModal-{{user.id}}">Delete</button>
+						<button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteUserModal-{{user.id}}">Delete</button>
 					</td>
 					{% else %}
 					<td>

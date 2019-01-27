@@ -42,7 +42,7 @@
 	</header>
 	<main role="main" class="container">
 		<div class="row">
-			<div class="col-md-9">
+			<div class="col-md-12">
 				{% with messages = get_flashed_messages(with_categories=true) %}
 					{% if messages %}
 						{% for category, message in messages %}
@@ -53,17 +53,6 @@
 					{% endif %}
 				{% endwith %}
 				{% block content %}{% endblock %}
-			</div>
-			<div class="col-md-3">
-				{% if current_user.is_authenticated %}
-				<div class="content-section">
-					<div class="sidenav">
-						<a class="nav-item nav-link btn btn-success btn-sm" href="{{ url_for('posts.new_post') }}">+ Add New Post</a>
-						<a class="nav-item nav-link btn btn-success btn-sm mt-1" href="{{ url_for('events.new_event') }}">+ Add New Event</a>
-					</div>
-				</div>
-				{% block sidecontent %}{% endblock %}
-				{% endif %}
 			</div>
 		</div>
 	</main>

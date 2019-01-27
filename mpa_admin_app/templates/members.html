@@ -2,17 +2,20 @@
 {% block content %} 
 
 	<h1>{{title}} Page</h1>
-	<h3>All Users</h3>
+
+	{% include 'roles_table.html' %}
+
+	<h3 class="mt-5">All Users</h3>
 	<table class="table table-hover">
 		<thead>
 			<tr>
-				<th scope="col">#ID</th>
-				<th scope="col"></th>
-				<th scope="col">Username</th>
-				<th scope="col">Email</th>
-				<th scope="col">Role</th>
-				<th scope="col">Posts</th>
-				<th scope="col">Events</th>
+				<th scope="col" style="width: 10%">#ID</th>
+				<th scope="col" style="width: 10%"></th>
+				<th scope="col" style="width: 20%">Username</th>
+				<th scope="col" style="width: 25%">Email</th>
+				<th scope="col" style="width: 15%">Role</th>
+				<th scope="col" style="width: 10%">Posts</th>
+				<th scope="col" style="width: 10%">Events</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -34,20 +37,3 @@
 	{% include 'edit_role_table.html' %}
 
 {% endblock content %}
-
-{% block sidecontent %}
-<div class="content-section">
-	<h3>Roles</h3>
-		<div class="sidenav">
-			<a class="nav-item nav-link btn btn-success btn-sm" href="{{ url_for('roles.new_role') }}">+ Add New Role</a>
-		</div>
-	<ul class="list-group mt-2">
-		{% for role in roles %}
-			<li class="list-group-item list-group-item-light">
-				<a class="mr-2" href="{{ url_for('roles.role_page', role_id=role.id) }}">{{ role.title }}</a>
-			</li>
-		{% endfor %}
-	</ul>
-</div>
-
-{% endblock %}
