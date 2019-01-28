@@ -1,0 +1,57 @@
+<div id="addPost" class="collapse">
+  <div class="content-section mt-3">
+    <form method="POST" action="{{ url_for('posts.new_post') }}" enctype="multipart/form-data">
+      <h3 class="mb-3 mt-1">Add Post</h3>
+      <input type="hidden" name="path" value="{{ request.path }}"/>
+      <!-- we need to pass this hiddent_tag method because what this does, it adds a CSRF Token (Cross-Site Request Forgery Token) -->
+      {{  postForm.hidden_tag() }}
+        <fieldset class="form-group">
+  
+          <div class="form-group">
+            {{ postForm.title.label(class="form-control-label") }}
+            {% if postForm.title.errors %}
+              {{ postForm.title(class="form-control form-control-lg is-invalid") }}
+              <div class="invalid-feedback">
+                {% for error in postForm.title.errors %}
+                  <span>{{ error }}</span>
+                {% endfor %}
+              </div>
+            {% else %}
+              {{ postForm.title(class="form-control form-control-lg") }}
+            {% endif %}
+          </div>
+  
+          <div class="form-group">
+            {{ postForm.content.label(class="form-control-label") }}
+            {% if postForm.content.errors %}
+              {{ postForm.content(class="form-control form-control-lg is-invalid") }}
+              <div class="invalid-feedback">
+                {% for error in postForm.content.errors %}
+                  <span>{{ error }}</span>
+                {% endfor %}
+              </div>
+            {% else %}
+              {{ postForm.content(class="form-control form-control-lg") }}
+            {% endif %}
+          </div>
+  
+          <div class="form-group">
+            {{ postForm.code_snippet.label(class="form-control-label") }}
+            {% if postForm.code_snippet.errors %}
+              {{ postForm.code_snippet(class="form-control form-control-lg is-invalid") }}
+              <div class="invalid-feedback">
+                {% for error in postForm.code_snippet.errors %}
+                  <span>{{ error }}</span>
+                {% endfor %}
+              </div>
+            {% else %}
+              {{ postForm.code_snippet(class="form-control form-control-lg") }}
+            {% endif %}
+          </div>
+        </fieldset>
+        <div class="form-group">
+          {{ postForm.submit(class="btn btn-outline-info") }}
+        </div>
+    </form>
+  </div>
+</div>

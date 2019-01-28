@@ -21,13 +21,6 @@ def new_role():
 	return render_template('create_role.html', title='Create New Role', form=roleForm, legend='New Role')
 
 
-@roles.route("/role/<int:role_id>")
-def role_page(role_id):
-	role = Role.query.get_or_404(role_id)
-	print(current_user.user_role)
-	return render_template('role.html', title=role.title, role=role, user=current_user)
-
-
 @roles.route("/role/<int:role_id>/update", methods=['GET', 'POST'])
 @login_required
 def update_role(role_id):

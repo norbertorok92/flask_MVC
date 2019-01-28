@@ -20,41 +20,17 @@ def new_comment(post_id):
 	return redirect(path)
 
 
-# @comments.route("/post/<int:post_id>")
-# def post(post_id):
-# 	post = Post.query.get_or_404(post_id)
-# 	return render_template('post.html', title=post.title, post=post)
-
-
-# @comments.route("/comment/<int:comment_id>/edit", methods=['GET', 'POST'])
-# @login_required
-# def edit_comment(comment_id):
-# 	comment = Comment.query.get_or_404(comment_id)
-# 	if comment.author != current_user:
-# 		abort(403)
-# 	editComment = CommentForm()
-# 	if editComment.validate_on_submit():
-# 		comment.content = editComment.content.data
-# 		db.session.commit()
-# 		flash('Your post has been updated!', 'success')
-# 		return redirect(url_for('comments.post', post_id=post.id))
-# 	elif request.method == 'GET':
-# 		editComment.content.data = comment.content
-# 	return render_template('create_post.html', title='Update Post', form=editComment, legend='Update Post')
-
-
-@comments.route("/<string:page>/comment/<int:comment_id>/delete", methods=['GET', 'POST'])
+@comments.route("/comment/<int:comment_id>/delete", methods=['GET', 'POST'])
 @login_required
-def delete_comment(comment_id, page):
+def delete_comment(comment_id):
+	path = request.form['path']
+
 	comment = Comment.query.get_or_404(comment_id)
 	
 	db.session.delete(comment)
 	db.session.commit()
 	flash('Your comment has been deleted!', 'success')
 	
-	if page == 'profile':
-		return redirect(page)
-	else:
-		return redirect(url_for('main.home'))
+	return redirect(path)
 		
 

@@ -3,6 +3,6 @@
   <form action="{{ url_for('comments.new_comment', post_id=post.id) }}" method="post">
       <input type="hidden" name="path" value="{{ request.path }}"/>
       <textarea name="addComment" rows="1" class="form-control form-control-sm" style="width: 85%; display: inline-block;" placeholder="Write a comment..."></textarea>
-      <input type="submit" class="nav-item btn btn-success btn-sm" style="width: 8%; float: right;" value="Post">
+      <button type="submit" class="btn btn-info btn-sm" style="width: 8%; float: right;"><span class="fas fa-reply"></span></button>
   </form>
 </div>

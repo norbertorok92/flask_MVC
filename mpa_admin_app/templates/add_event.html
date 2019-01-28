@@ -1,0 +1,61 @@
+<div id="addEvent" class="collapse">
+  <div class="content-section mt-3">
+    <form method="POST" action="{{ url_for('events.new_event') }}" enctype="multipart/form-data">
+      <h3 class="mb-3 mt-1">Add Event</h3>
+      <input type="hidden" name="path" value="{{ request.path }}"/>
+      <!-- we need to pass this hiddent_tag method because what this does, it adds a CSRF Token (Cross-Site Request Forgery Token) -->
+      {{  eventForm.hidden_tag() }}
+        <fieldset class="form-group">
+  
+          <div class="form-group">
+            {{ eventForm.title.label(class="form-control-label") }}
+            {% if eventForm.title.errors %}
+              {{ eventForm.title(class="form-control form-control-lg is-invalid") }}
+              <div class="invalid-feedback">
+                {% for error in eventForm.title.errors %}
+                  <span>{{ error }}</span>
+                {% endfor %}
+              </div>
+            {% else %}
+              {{ eventForm.title(class="form-control form-control-lg") }}
+            {% endif %}
+          </div>
+  
+          <div class="form-group">
+            {{ eventForm.content.label(class="form-control-label") }}
+            {% if eventForm.content.errors %}
+              {{ eventForm.content(class="form-control form-control-lg is-invalid") }}
+              <div class="invalid-feedback">
+                {% for error in eventForm.content.errors %}
+                  <span>{{ error }}</span>
+                {% endfor %}
+              </div>
+            {% else %}
+              {{ eventForm.content(class="form-control form-control-lg") }}
+            {% endif %}
+          </div>
+  
+          <div class="form-group">
+            {{ eventForm.event_date.label(class="form-control-label") }}
+            {% if eventForm.event_date.errors %}
+              {{ eventForm.event_date(class="form-control form-control-lg is-invalid") }}
+              <div class="invalid-feedback">
+                {% for error in eventForm.event_date.errors %}
+                  <span>{{ error }}</span>
+                {% endfor %}
+              </div>
+            {% else %}
+              {{ eventForm.event_date(class="form-control form-control-lg") }}
+              <small class="text-muted">
+                Accepted format: YYYY-MM-DD
+              </small>
+            {% endif %}
+          </div>
+  
+        </fieldset>
+        <div class="form-group">
+          {{ eventForm.submit(class="btn btn-outline-info") }}
+        </div>
+    </form>
+  </div>
+</div>

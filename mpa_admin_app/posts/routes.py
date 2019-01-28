@@ -13,19 +13,13 @@ posts = Blueprint('posts', __name__)
 def new_post():
 	postForm = PostForm()
 	if postForm.validate_on_submit():
+		path = request.form['path']
 		post = Post(title = postForm.title.data, content = postForm.content.data, code_snippet = postForm.code_snippet.data, author=current_user)
 		db.session.add(post)
 		db.session.commit()
 		flash('Your post has been created!', 'success')
-		return redirect(url_for('main.home'))
-	return render_template('create_post.html', title='New Post', form=postForm, legend='New Post')
-
-
-# @posts.route("/post/<int:post_id>")
-# def post(post_id):
-# 	post = Post.query.get_or_404(post_id)
-# 	comments = Comment.query.all()
-# 	return render_template('post.html', title=post.title, post=post, comments=comments)
+		
+		return redirect(path)
 
 
 @posts.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
@@ -52,11 +46,13 @@ def update_post(post_id):
 @posts.route("/post/<int:post_id>/delete", methods=['POST'])
 @login_required
 def delete_post(post_id):
+	path = request.form['path']
+
 	post = Post.query.get_or_404(post_id)
 	if post.author != current_user:
 		abort(403)
 	db.session.delete(post)
 	db.session.commit()
 	flash('Your post has been deleted!', 'success')
-	return redirect(url_for('main.home'))
+	return redirect(path)
 
