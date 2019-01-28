@@ -13,6 +13,8 @@
 	<!-- BOOTSTRAP CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
+	<!-- fontawesome -->
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
 </head>
 <body>
 	<header class="site-header">
@@ -27,7 +29,7 @@
 					<div class="navbar-nav">
 						{% if current_user.is_authenticated %}
 						<a class="nav-item nav-link" href="{{ url_for('members.membership') }}">Members</a>
-							<a class="nav-item nav-link" href="{{ url_for('users.profile') }}">Profile</a>
+							<a class="nav-item nav-link" href="{{ url_for('users.profile', id=current_user.id) }}">Profile</a>
 							<a class="nav-item nav-link" href="{{ url_for('users.logout') }}">Logout</a>
 						{% else %}
 							<a class="nav-item nav-link" href="{{ url_for('users.login') }}">Login</a>
@@ -40,7 +42,7 @@
 	</header>
 	<main role="main" class="container">
 		<div class="row">
-			<div class="col-md-8">
+			<div class="col-md-12">
 				{% with messages = get_flashed_messages(with_categories=true) %}
 					{% if messages %}
 						{% for category, message in messages %}
@@ -51,17 +53,6 @@
 					{% endif %}
 				{% endwith %}
 				{% block content %}{% endblock %}
-			</div>
-			<div class="col-md-4">
-				{% if current_user.is_authenticated %}
-				<div class="content-section">
-					<div class="sidenav">
-						<a class="nav-item nav-link btn btn-success btn-sm" href="{{ url_for('posts.new_post') }}">+ Add New Post</a>
-						<a class="nav-item nav-link btn btn-success btn-sm mt-1" href="{{ url_for('events.new_event') }}">+ Add New Event</a>
-					</div>
-				</div>
-				{% block sidecontent %}{% endblock %}
-				{% endif %}
 			</div>
 		</div>
 	</main>

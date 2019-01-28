@@ -104,4 +104,5 @@ venv.bak/
 .mypy_cache/
 
 # db
-.db
+mpa_admin_app/mpa_app.db
+migrations

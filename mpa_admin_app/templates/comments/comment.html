@@ -1,0 +1,13 @@
+<div>
+  <hr>
+  <img class="rounded-circle" style="width: 5%;" src="{{ url_for('static', filename='profile_pics/' + comment.author.image_file) }}">
+  <a class="mr-2" href="{{ url_for('users.profile', id=comment.author.id) }}">{{ comment.author.username }}</a>
+  <small class="text-muted">Posted on: {{ comment.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
+  <p class="comment-style mt-1">{{ comment.content }}
+    {% if comment.author.username == current_user.username %}
+      <span style="float: right;">
+        <a class="mr-2" style="color:red;" data-toggle="modal" data-target="#deleteCommentModal" href="#"><span class="fas fa-trash-alt"></span></a>
+      </span>
+    {% endif %}
+  </p>
+</div>

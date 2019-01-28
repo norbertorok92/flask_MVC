@@ -6,5 +6,6 @@ members = Blueprint('members', __name__)
 
 @members.route("/members")
 def membership():
+	roles = Role.query.all()
 	users = User.query.all()
-	return render_template('members.html', title='Members', users=users)
+	return render_template('members.html', title='Members', roles=roles, users=users)

@@ -29,6 +29,8 @@ def create_app(config_class=Config):
   from mpa_admin_app.posts.routes import posts
   from mpa_admin_app.events.routes import events
   from mpa_admin_app.members.routes import members
+  from mpa_admin_app.roles.routes import roles
+  from mpa_admin_app.comments.routes import comments
   from mpa_admin_app.api.routes import api
   from mpa_admin_app.errors.handlers import errors
   app.register_blueprint(main)
@@ -36,6 +38,8 @@ def create_app(config_class=Config):
   app.register_blueprint(posts)
   app.register_blueprint(events)
   app.register_blueprint(members)
+  app.register_blueprint(roles)
+  app.register_blueprint(comments)
   app.register_blueprint(api)
   app.register_blueprint(errors)
 

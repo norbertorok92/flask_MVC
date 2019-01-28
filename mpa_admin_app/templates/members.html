@@ -2,31 +2,38 @@
 {% block content %} 
 
 	<h1>{{title}} Page</h1>
+
+	{% include 'roles_table.html' %}
+
+	<h3 class="mt-5">All Users</h3>
 	<table class="table table-hover">
 		<thead>
 			<tr>
-				<th scope="col">#ID</th>
-				<th scope="col">Username</th>
-				<th scope="col">Email</th>
-				<th scope="col">Promote</th>
-				<th scope="col">Delete</th>
+				<th scope="col" style="width: 10%">#ID</th>
+				<th scope="col" style="width: 10%"></th>
+				<th scope="col" style="width: 20%">Username</th>
+				<th scope="col" style="width: 25%">Email</th>
+				<th scope="col" style="width: 15%">Role</th>
+				<th scope="col" style="width: 10%">Posts</th>
+				<th scope="col" style="width: 10%">Events</th>
 			</tr>
 		</thead>
 		<tbody>
 			{% for user in users %}
 			<tr>
 				<td scope="row">{{ user.id }}</td>
+				<td scope="row">
+					<img class="rounded-circle members-list-img" src="{{ url_for('static', filename='profile_pics/' + user.image_file) }}">
+				</td>
 				<td>{{ user.username }}</td>
 				<td>{{ user.email }}</td>
-				<td>
-						<a class="nav-item nav-link btn btn-success btn-sm" href="{{ url_for('posts.new_post') }}">Promote to Member</a>
-				</td>
-				<td>
-						<a class="nav-item nav-link btn btn-danger btn-sm" href="{{ url_for('posts.new_post') }}">Delete</a>
-				</td>
+				<td>{{ user.user_role.upper() }}</td>
+				<td>{{ user.posts|length }}</td>
+				<td>{{ user.events|length }}</td>
 			</tr>
 			{% endfor %}
 		</tbody>
 	</table>
+	{% include 'edit_role_table.html' %}
 
 {% endblock content %}

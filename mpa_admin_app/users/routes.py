@@ -1,7 +1,7 @@
 from flask import render_template, url_for, flash, redirect, request, Blueprint, jsonify, abort
 from flask_login import login_user, current_user, logout_user, login_required
 from mpa_admin_app import db, bcrypt
-from mpa_admin_app.models import User, Post
+from mpa_admin_app.models import User, Post, Comment, Event
 from mpa_admin_app.users.forms import (RegistrationForm, LoginForm, UpdateProfileForm,
                                    RequestResetForm, ResetPasswordForm)
 from mpa_admin_app.users.utils import save_picture, send_reset_email
@@ -46,9 +46,13 @@ def logout():
 	return redirect(url_for('main.home'))
 
 
-@users.route("/profile", methods=['GET', 'POST'])
+@users.route("/profile/<int:id>", methods=['GET', 'POST'])
 @login_required
-def profile():
+def profile(id):
+	user = User.query.filter_by(id=id).first()
+	posts = Post.query.filter_by(author=user).all()
+	comments = Comment.query.all()
+	events = Event.query.all()
 	updateForm = UpdateProfileForm()
 	if updateForm.validate_on_submit():
 		if updateForm.picture.data:
@@ -58,22 +62,83 @@ def profile():
 		current_user.email = updateForm.email.data
 		db.session.commit()
 		flash('Your profile has been updated!', 'success')
-		return redirect(url_for('users.profile'))
+		return redirect(url_for('users.profile', id=id))
 	elif request.method == 'GET':
-		updateForm.username.data = current_user.username
-		updateForm.email.data = current_user.email
-	image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
-	return render_template('profile.html', title='Profile', image_file=image_file, form=updateForm)
+		updateForm.username.data = user.username
+		updateForm.email.data = user.email
+	return render_template('profile.html', title='Profile', form=updateForm, user=user, posts=posts, comments=comments, events=events)
 
 
-@users.route("/user/<string:username>", methods=['GET', 'POST'])
-def user_post(username):
-	page = request.args.get('page', 1, type=int)
-	user = User.query.filter_by(username=username).first_or_404()
-	posts = Post.query.filter_by(author=user)\
-		.order_by(Post.date_posted.desc())\
-		.paginate(page=page, per_page=10)
-	return render_template('user_posts.html', title='Home', posts=posts, user=user)
+@users.route("/user/<string:username>/promote", methods=['POST'])
+@login_required
+def promote_user(username):
+	user = User.query.filter_by(username=username).first()
+
+	if not user:
+		return jsonify({'message': 'No user found', 'success' : False})
+
+	if user.user_role == 'visitor':
+		promoteToValue = 'member'
+	elif user.user_role == 'member':
+		promoteToValue = 'admin'
+	else:
+		promoteToValue = 'visitor'
+	
+	user.user_role = promoteToValue
+	
+	db.session.commit()
+
+	flash('User has been promoted!', 'success')
+	return redirect(url_for('members.membership'))
+
+
+@users.route("/user/<string:username>/demote", methods=['POST'])
+@login_required
+def demote_user(username):
+	user = User.query.filter_by(username=username).first()
+
+	if not user:
+		return jsonify({'message': 'No user found', 'success' : False})
+
+	if user.user_role == 'admin':
+		demoteToValue = 'member'
+	elif user.user_role == 'member':
+		demoteToValue = 'visitor'
+	else:
+		demoteToValue = 'visitor'
+
+	user.user_role = demoteToValue
+
+	db.session.commit()
+
+	flash('User has been demoted!', 'success')
+	return redirect(url_for('members.membership'))
+
+
+
+@users.route("/user/<string:username>/delete", methods=['POST'])
+def delete_user(username):
+	user = User.query.filter_by(username=username).first()
+
+	if not user:
+		return jsonify({'message': 'No user found', 'success' : False})
+
+	db.session.delete(user)
+	db.session.commit()
+
+	flash('User has been deleted!', 'success')
+	return redirect(url_for('members.membership'))
+
+
+# @users.route("/user/<string:username>", methods=['GET', 'POST'])
+# def user_post(username):
+# 	page = request.args.get('page', 1, type=int)
+# 	user = User.query.filter_by(username=username).first_or_404()
+# 	comments = Comment.query.all()
+# 	posts = Post.query.filter_by(author=user)\
+# 		.order_by(Post.date_posted.desc())\
+# 		.paginate(page=page, per_page=10)
+# 	return render_template('user_posts.html', title='Home', posts=posts, user=user, comments=comments)
 
 
 @users.route("/reset_password", methods=['GET', 'POST'])

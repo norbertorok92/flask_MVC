@@ -2,7 +2,7 @@ from flask import (render_template, url_for, flash,
                    redirect, request, abort, Blueprint)
 from flask_login import current_user, login_required
 from mpa_admin_app import db
-from mpa_admin_app.models import Post
+from mpa_admin_app.models import Post, Comment
 from mpa_admin_app.posts.forms import PostForm
 
 posts = Blueprint('posts', __name__)
@@ -21,10 +21,11 @@ def new_post():
 	return render_template('create_post.html', title='New Post', form=postForm, legend='New Post')
 
 
-@posts.route("/post/<int:post_id>")
-def post(post_id):
-	post = Post.query.get_or_404(post_id)
-	return render_template('post.html', title=post.title, post=post)
+# @posts.route("/post/<int:post_id>")
+# def post(post_id):
+# 	post = Post.query.get_or_404(post_id)
+# 	comments = Comment.query.all()
+# 	return render_template('post.html', title=post.title, post=post, comments=comments)
 
 
 @posts.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
@@ -40,7 +41,7 @@ def update_post(post_id):
 		post.code_snippet = updatePost.code_snippet.data
 		db.session.commit()
 		flash('Your post has been updated!', 'success')
-		return redirect(url_for('posts.post', post_id=post.id))
+		return redirect(url_for('main.home', post_id=post.id))
 	elif request.method == 'GET':
 		updatePost.title.data = post.title
 		updatePost.content.data = post.content

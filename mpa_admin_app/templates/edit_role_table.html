@@ -1,0 +1,70 @@
+	<h3 class="mt-5">Membership Requests</h3>
+	<table class="table table-hover">
+		<thead>
+			<tr>
+				<th scope="col" style="width: 10%">#ID</th>
+				<th scope="col" style="width: 10%"></th>
+				<th scope="col" style="width: 20%">Username</th>
+				<th scope="col" style="width: 35%">Edit Role</th>
+				<th scope="col" style="width: 25%">Delete</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for user in users %}
+			<tr>
+				<td scope="row">{{ user.id }}</td>
+				<td scope="row">
+					<img class="rounded-circle members-list-img" src="{{ url_for('static', filename='profile_pics/' + user.image_file) }}">
+				</td>
+				<td>{{ user.username }}</td>
+				{% if user.user_role == 'admin' %}
+					<td>
+						<button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#demoteModal-{{user.id}}">Demote to Member</button>
+					</td>
+					<td>
+						<p>You cannot delete Admins</p>
+					</td>
+				{% elif user.user_role == 'member' %}
+					<td>
+						<button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#promoteModal-{{user.id}}">Promote to Admin</button>
+						<button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#demoteModal-{{user.id}}">Demote to Visitor</button>
+					</td>
+					{% if user.id != current_user.id %}
+					<td>
+						<button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteUserModal-{{user.id}}">Delete</button>
+					</td>
+					{% else %}
+						<td>
+							<p>You cannot delete yourself, that would be silly</p>
+						</td>
+					{% endif %}
+				{% elif user.user_role == 'visitor' %}
+					<td>
+						<button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#promoteModal-{{user.id}}">Promote to Member</button>
+					</td>
+					{% if user.id != current_user.id %}
+					<td>
+						<button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteUserModal-{{user.id}}">Delete</button>
+					</td>
+					{% else %}
+					<td>
+						<p>You cannot delete yourself, that would be silly</p>
+					</td>
+					{% endif %}
+					{% else %}
+					<td colspan="2">
+						<p>No clue what to do... user has "{{user.user_role}}" role, contact admins please</p>
+					</td>
+				{% endif %}
+
+				{% include 'modals/promote_modal.html' %}
+				{% include 'modals/demote_modal.html' %}
+				{% include 'modals/delete_user_modal.html' %}
+
+			</tr>
+			
+			{% endfor %}
+		</tbody>
+	</table>
+
+
