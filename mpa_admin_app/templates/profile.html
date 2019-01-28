@@ -29,10 +29,13 @@
 
 	{% if current_user.is_authenticated %}
 		<div class="d-flex flex-row-reverse">
-			<a style="float: right;" class="btn btn-success btn-sm" href="{{ url_for('events.new_event') }}">+ Add Event</a>
-			<a style="float: right;" class="btn btn-success btn-sm mr-3" href="{{ url_for('posts.new_post') }}">+ Add Post</a>
+			<a class="btn btn-success btn-sm" style="float: right;" href="#addPost" data-toggle="collapse"><span class="fas fa-plus"></span> Add Post</a>
+			<a class="btn btn-success btn-sm mr-1" style="float: right;" href="#addEvent" data-toggle="collapse"><span class="fas fa-plus"></span> Add Event</a>
 		</div>
 	{% endif %}
+
+	{% include 'add_post.html' %}
+	{% include 'add_event.html' %}
 	
 	<div>
 		<ul class="nav nav-tabs" id="myTab" role="tablist">

@@ -13,18 +13,19 @@ events = Blueprint('events', __name__)
 def new_event():
 	eventForm = EventForm()
 	if eventForm.validate_on_submit():
+		path = request.form['path']
 		event = Event(title = eventForm.title.data, content = eventForm.content.data, author=current_user, event_date = eventForm.event_date.data)
 		db.session.add(event)
 		db.session.commit()
 		flash('Your event has been created!', 'success')
-		return redirect(url_for('main.home'))
-	return render_template('create_event.html', title='New Event', form=eventForm, legend='New Event')
+		
+		return redirect(path)
 
 
-@events.route("/event/<int:event_id>")
-def event(event_id):
-	event = Event.query.get_or_404(event_id)
-	return render_template('event.html', title=event.title, event=event)
+# @events.route("/event/<int:event_id>")
+# def event(event_id):
+# 	event = Event.query.get_or_404(event_id)
+# 	return render_template('event.html', title=event.title, event=event)
 
 
 @events.route("/event/<int:event_id>/update", methods=['GET', 'POST'])
@@ -51,11 +52,13 @@ def update_event(event_id):
 @events.route("/event/<int:event_id>/delete", methods=['POST'])
 @login_required
 def delete_event(event_id):
+	path = request.form['path']
+
 	event = Event.query.get_or_404(event_id)
 	if event.author != current_user:
 		abort(403)
 	db.session.delete(event)
 	db.session.commit()
 	flash('Your event has been deleted!', 'success')
-	return redirect(url_for('main.home'))
+	return redirect(path)
 
