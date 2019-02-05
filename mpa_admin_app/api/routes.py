@@ -1,10 +1,48 @@
 from flask import Blueprint, render_template, request, jsonify
+from flask_cors import CORS, cross_origin
 from mpa_admin_app.models import User, Post, Event, Role, Comment
 from mpa_admin_app import db, bcrypt
 from mpa_admin_app.users.utils import save_picture
 from datetime import datetime
+from sqlalchemy import exc
 
 api = Blueprint('api', __name__)
+CORS(api, resources={r"/api/*": {"origins": "*"}})
+
+# # ======================== REGISTER =====================
+@api.route('/api/register', methods = ['POST'])
+@cross_origin() # allow all origins all methods.
+def register():
+	data = request.get_json(force=True)
+	username = data['username']
+	password = data['password']
+	email = data['email']
+	print(password)
+	if not username or not password:
+		return jsonify({'message': 'Missing argument', 'success' : False}), 400 # missing arguments
+	hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+	new_user = User(username = username, email = email, password = hashed_password)
+	db.session.add(new_user)
+	try:
+		db.session.commit()
+		return jsonify({'message' : 'New user created!', 'success' : True, 'userID': new_user.id, 'userRole': new_user.user_role }), 201
+	except exc.IntegrityError:
+		return jsonify({'message': 'User or email already exists', 'success' : False}), 409 # existing user
+	except:
+		return jsonify({'message': 'Something went terribly wrong', 'success' : False}), 500
+
+# # ======================== LOGIN =====================
+@api.route('/api/login', methods = ['POST'])
+@cross_origin() # allow all origins all methods.
+def login():
+	data = request.get_json(force=True)
+	username = data['username']
+	password = data['password']
+	user = User.query.filter_by(username = username).first()
+	if user and bcrypt.check_password_hash(user.password, password):
+		return jsonify({'message': 'Logged in as {}'.format(user.username), 'success' : True, 'userID': user.id, 'userRole': user.user_role }), 200
+	else:
+		return jsonify({'success' : False, 'message': 'Wrong credentials'}), 401
 
 # ===============================================================
 # USER API
@@ -24,6 +62,7 @@ def get_all_users():
 		user_data['username'] = user.username
 		user_data['email'] = user.email
 		user_data['user_role'] = user.user_role
+		user_data['subscribedTo'] = user.subscribedTo
 		
 		output.append(user_data)
 
@@ -31,10 +70,10 @@ def get_all_users():
 
 
 # # ======================== GET ONE USER =====================
-@api.route("/api/users/<int:id>", methods=['GET'])
-def get_one_user(id):
+@api.route("/api/users/<int:user_id>", methods=['GET'])
+def get_one_user(user_id):
 
-	user = User.query.filter_by(id=id).first()
+	user = User.query.filter_by(id=user_id).first()
 
 	posts_list = []
 	events_list = []
@@ -47,15 +86,25 @@ def get_one_user(id):
 	user_data['email'] = user.email
 	user_data['image_file'] = user.image_file
 	user_data['user_role'] = user.user_role
+	user_data['subscribedTo'] = user.subscribedTo
+	user_data['id'] = user.id
 
 	posts = Post.query.filter_by(author=user).order_by(Post.date_posted.desc()).all()
 	for post in posts:
+		comments_list = []
+		
+		comments = Comment.query.filter_by(post_id=post.id).all()
+		for comment in comments:
+			comments_list.append(comment.to_dict())
+		
 		user_post = dict(
+			id=post.id,
 			title=post.title,
 			content=post.content,
 			code_snippet=post.code_snippet,
 			date_posted=post.date_posted,
-			author=post.user_id
+			author=post.author.to_dict(),
+			comments=comments_list
 		)
 		
 		posts_list.append(user_post)
@@ -67,7 +116,7 @@ def get_one_user(id):
 			title=event.title,
 			content=event.content,
 			event_date=event.event_date,
-			author=event.user_id
+			author=event.author.to_dict()
 		)
 		
 		events_list.append(user_event)
@@ -78,26 +127,11 @@ def get_one_user(id):
 	return jsonify({'user': user_data, 'success' : True})
 
 
-# # ======================== CREATE USER =====================
-@api.route("/api/users", methods=['POST'])
-def create_user():
-	data = request.get_json(force=True)
-
-	hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
-
-	new_user = User(username=data['username'], email=data['email'], password=hashed_password)
-
-	db.session.add(new_user)
-	db.session.commit()
-
-	return jsonify({'message' : 'New user created!', 'success' : True})
-
-
 # # ======================== UPDATE USER =====================
-@api.route("/api/users/<int:id>", methods=['PUT'])
-def update_user(id):
+@api.route("/api/users/<int:user_id>", methods=['PUT'])
+def update_user(user_id):
 	data = request.get_json(force=True)
-	user = User.query.filter_by(id=id).first()
+	user = User.query.filter_by(id=user_id).first()
 
 	if not user:
 		return jsonify({'message': 'No user found', 'success' : False})
@@ -110,10 +144,35 @@ def update_user(id):
 	return jsonify({'message' : 'The user has been updated!', 'success' : True})
 
 
+# # ======================== SUBSCRIBE TO ROLE =====================
+@api.route("/api/users/<int:user_id>/subscribe", methods=['PUT'])
+def sbuscribe_user(user_id):
+	user = User.query.filter_by(id=user_id).first()
+
+	if not user:
+		return jsonify({'message': 'No user found', 'success' : False})
+
+	if user.user_role == 'visitor':
+		subscribeTo = 'member'
+	else:
+		subscribeTo = 'admin'
+	
+	user.subscribedTo = subscribeTo
+	
+	db.session.commit()
+
+	return jsonify(
+		{
+			'message' : 'User subscribed!',
+			'success' : True
+		}
+	)
+
+
 # # ======================== PROMOTE USER =====================
-@api.route("/api/users/<int:id>/promote", methods=['PUT'])
-def promote_user(id):
-	user = User.query.filter_by(id=id).first()
+@api.route("/api/users/<int:user_id>/promote", methods=['PUT'])
+def promote_user(user_id):
+	user = User.query.filter_by(id=user_id).first()
 
 	if not user:
 		return jsonify({'message': 'No user found', 'success' : False})
@@ -126,6 +185,7 @@ def promote_user(id):
 		promoteToValue = 'visitor'
 	
 	user.user_role = promoteToValue
+	user.subscribedTo = promoteToValue
 	
 	db.session.commit()
 
@@ -138,9 +198,9 @@ def promote_user(id):
 
 
 # # ======================== DEMOTE USER =====================
-@api.route("/api/users/<int:id>/demote", methods=['PUT'])
-def demote_user(id):
-	user = User.query.filter_by(id=id).first()
+@api.route("/api/users/<int:user_id>/demote", methods=['PUT'])
+def demote_user(user_id):
+	user = User.query.filter_by(id=user_id).first()
 
 	if not user:
 		return jsonify({'message': 'No user found', 'success' : False})
@@ -153,21 +213,22 @@ def demote_user(id):
 		demoteToValue = 'visitor'
 
 	user.user_role = demoteToValue
+	user.subscribedTo = demoteToValue
 
 	db.session.commit()
 
 	return jsonify(
 		{
-			'message' : 'The user has been promoted!',
+			'message' : 'The user has been demoted!',
 			'success' : True
 		}
 	)
 
 
 # # ======================== DELETE USER =====================
-@api.route("/api/users/<int:id>", methods=['DELETE'])
-def delete_user(id):
-	user = User.query.filter_by(id=id).first()
+@api.route("/api/users/<int:user_id>", methods=['DELETE'])
+def delete_user(user_id):
+	user = User.query.filter_by(id=user_id).first()
 
 	if not user:
 		return jsonify({'message': 'No user found', 'success' : False})
@@ -185,18 +246,26 @@ def delete_user(id):
 # # ======================== GET ALL POSTS ========================
 @api.route("/api/posts", methods=['GET'])
 def get_all_posts():
-	
-	posts = Post.query.all()
+
+	posts = Post.query.order_by(Post.date_posted.desc()).all()
 
 	output = []
 
 	for post in posts:
+		comments_list = []
 		post_data = {}
 		post_data['id'] = post.id
 		post_data['title'] = post.title
 		post_data['date_posted'] = post.date_posted
 		post_data['content'] = post.content
 		post_data['code_snippet'] = post.code_snippet
+		post_data['author'] = post.author.to_dict()
+
+		comments = Comment.query.filter_by(post_id=post.id).all()
+		for comment in comments:
+			comments_list.append(comment.to_dict())
+
+		post_data['comments'] = comments_list
 		
 		output.append(post_data)
 
@@ -222,15 +291,7 @@ def get_one_post(post_id):
 
 	comments = Comment.query.filter_by(post_id=post_id).all()
 	for comment in comments:
-		post_comments = dict(
-			id=comment.id,
-			date_posted=comment.date_posted,
-			content=comment.content,
-			author=comment.user_id
-		)
-		
-		comments_list.append(post_comments)
-
+		comments_list.append(comment.to_dict())
 
 	post_data['comments'] = comments_list
 
@@ -318,7 +379,7 @@ def delete_comment(comment_id):
 @api.route("/api/events", methods=['GET'])
 def get_all_events():
 	
-	events = Event.query.all()
+	events = Event.query.order_by(Event.event_date.desc()).all()
 
 	output = []
 
@@ -328,6 +389,7 @@ def get_all_events():
 		event_data['title'] = event.title
 		event_data['content'] = event.content
 		event_data['event_date'] = event.event_date
+		event_data['author'] = event.author.to_dict()
 		
 		output.append(event_data)
 
@@ -420,7 +482,7 @@ def get_all_roles():
 	return jsonify({'roles': output, 'success' : True})
 
 
-# # ======================== GET ONE ROLE =====================
+# # ======================== UPDATE ROLE =====================
 @api.route("/api/roles/<int:role_id>", methods=['PUT'])
 def update_role(role_id):
 	data = request.get_json(force=True)

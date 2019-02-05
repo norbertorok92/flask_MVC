@@ -15,6 +15,7 @@ class User(db.Model, UserMixin):
 	email = db.Column(db.String(120), unique=True, nullable=False)
 	password = db.Column(db.String(60), nullable=False)
 	image_file = db.Column(db.String(20), nullable=False, default='def_profile_pic.jpg')
+	subscribedTo = db.Column(db.String(20), nullable=False, default='visitor')
 	user_role = db.Column(db.String, db.ForeignKey('role.id'), nullable=False, default='visitor')
 	posts = db.relationship('Post', backref='author', uselist=True, cascade="all, delete-orphan")
 	comments = db.relationship('Comment', backref='author', uselist=True, cascade="all, delete-orphan")
@@ -37,6 +38,9 @@ class User(db.Model, UserMixin):
 
 	def __repr__(self):
 		return f"User('{self.username}', '{self.email}', '{self.user_role}')"
+
+	def to_dict(self):
+		return dict(id=self.id, username=self.username, user_role=self.user_role)
 
 
 class Post(db.Model):
@@ -63,6 +67,9 @@ class Comment(db.Model):
 
 	def __repr__(self):
 		return f"Comment('{self.content}', '{self.date_posted}', '{self.post_id}')"
+
+	def to_dict(self):
+		return dict(id=self.id, date_posted=self.date_posted, content=self.content, author=self.author.to_dict(), post_id=self.post_id)
 
 
 class Event(db.Model):

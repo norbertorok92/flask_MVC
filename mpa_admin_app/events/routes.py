@@ -22,12 +22,6 @@ def new_event():
 		return redirect(path)
 
 
-# @events.route("/event/<int:event_id>")
-# def event(event_id):
-# 	event = Event.query.get_or_404(event_id)
-# 	return render_template('event.html', title=event.title, event=event)
-
-
 @events.route("/event/<int:event_id>/update", methods=['GET', 'POST'])
 @login_required
 def update_event(event_id):

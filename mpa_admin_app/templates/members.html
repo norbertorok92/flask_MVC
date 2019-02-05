@@ -11,9 +11,9 @@
 				<th scope="col" style="width: 10%"></th>
 				<th scope="col" style="width: 20%">Username</th>
 				<th scope="col" style="width: 25%">Email</th>
-				<th scope="col" style="width: 15%">Role</th>
 				<th scope="col" style="width: 10%">Posts</th>
 				<th scope="col" style="width: 10%">Events</th>
+				<th scope="col" style="width: 15%">Delete</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -25,10 +25,17 @@
 				</td>
 				<td>{{ user.username }}</td>
 				<td>{{ user.email }}</td>
-				<td>{{ user.user_role.upper() }}</td>
 				<td>{{ user.posts|length }}</td>
 				<td>{{ user.events|length }}</td>
+				<td>
+					{% if user.id != current_user.id %}
+						<button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteUserModal-{{user.id}}">Delete</button>
+					{% else %}
+						<p style="font-size: 4px;">You cannot delete yourself, that would be silly... at least ask someone else to do it...</p>
+					{% endif %}
+				</td>
 			</tr>
+			{% include 'modals/delete_user_modal.html' %}
 			{% endfor %}
 		</tbody>
 	</table>
