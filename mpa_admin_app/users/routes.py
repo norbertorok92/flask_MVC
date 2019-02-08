@@ -1,5 +1,6 @@
 from flask import render_template, url_for, flash, redirect, request, Blueprint, jsonify, abort
 from flask_login import login_user, current_user, logout_user, login_required
+from datetime import datetime
 from mpa_admin_app import db, bcrypt
 from mpa_admin_app.models import User, Post, Comment, Event
 from mpa_admin_app.posts.forms import PostForm
@@ -33,12 +34,12 @@ def login():
 	loginForm = LoginForm()
 	if loginForm.validate_on_submit():
 		user = User.query.filter_by(username=loginForm.username.data).first()
-		if user and bcrypt.check_password_hash(user.password, loginForm.password.data):
+		if user and user.user_role == 'admin' and bcrypt.check_password_hash(user.password, loginForm.password.data):
 			login_user(user, remember=loginForm.remember.data)
 			next_page = request.args.get('next')
 			return redirect(next_page) if next_page else redirect(url_for('main.home'))
 		else:
-			flash('Login Unsuccessful. Please check username and password', 'danger')
+			flash('Login Unsuccessful. Please check username and password... and just an FYI, only admins can access this awesome app 😉', 'danger')
 	return render_template('login.html', title='Login', form=loginForm)
 
 
@@ -89,6 +90,7 @@ def promote_user(username):
 		promoteToValue = 'visitor'
 	
 	user.user_role = promoteToValue
+	user.subscribedTo = promoteToValue
 	
 	db.session.commit()
 
@@ -112,6 +114,7 @@ def demote_user(username):
 		demoteToValue = 'visitor'
 
 	user.user_role = demoteToValue
+	user.subscribedTo = demoteToValue
 
 	db.session.commit()
 
